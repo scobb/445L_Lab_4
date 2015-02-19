@@ -49,9 +49,12 @@ uint32_t Tach_getMeasurement(){
 	while (!Done){
 		WaitForInterrupt();
 	}
-	uint32_t rps = CYCLES_PER_SECOND/(N*Period);
+	// calculate using a 64 bit to accomodate 1000 * 80,000,000
+	uint64_t rps_thousandths = ((1000) * CYCLES_PER_SECOND)/(N * Period);
 	Done = 0;
-	return rps;
+	
+	// demote to 32 bit when passed back.
+	return rps_thousandths;
 }
 
 void Timer1A_Handler(void){

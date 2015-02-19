@@ -2,11 +2,7 @@
 #include "inc/tm4c123gh6pm.h"
 #include "ST7735.h"
 #include "SysTick.h"
-#include "Alarm.h"
-#include "Clock.h"
-#include "DigitalDisplay.h"
-#include "AnalogDisplay.h"
-#include "ST7735_Constants.h"
+#include <stdint.h>
 
 long StartCritical (void);    // previous I bit, disable interrupts
 void EndCritical(long sr);    // restore I bit to previous value
@@ -59,9 +55,9 @@ void decreaseSpeedPressed(){
 	// Calls Display_updateDesiredSpeed(newSpeed);
 	
 }
-void ButtonManager_setHandler(uint32_t portAddress, void(*handler(void)){
+void ButtonManager_setHandler(uint32_t portAddress, void(*handler)(void)){
 	// need to store these handlers somehow. Would be easiest to use a hashtable with portAddress as key
-	buttonStatus bs = {(*(volatile uin32_t*)portAddress), FALSE, handler};
+	buttonStatus bs = {(*(volatile uint32_t*)portAddress), FALSE, handler};
 }
 void CheckDebounce(buttonStatus* buttons, uint8_t numPorts){
 	// private function to allow us to debounce all buttons
@@ -77,7 +73,6 @@ void CheckDebounce(buttonStatus* buttons, uint8_t numPorts){
 
 void GPIOPortD_Handler(void){
 	// handler for port D -- all 5 buttons
-	seconds_since_button_press = 0;
 	GPIO_PORTD_ICR_R = 0x03;      // acknowledge flag 0-1
 	uint8_t i;
 	uint8_t needCheck = FALSE;

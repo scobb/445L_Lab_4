@@ -44,15 +44,11 @@ void ButtonManager_Init(){
 	
 }
 void increaseSpeedPressed(){
-	// Calls int newSpeed = Motor_increaseSpeed();
-	
-	// Calls Display_updateDesiredSpeed(newSpeed);
+	// Calls Motor_increaseSpeed();
 	
 }
 void decreaseSpeedPressed(){
-	// Calls int newSpeed = Motor_increaseSpeed();
-	
-	// Calls Display_updateDesiredSpeed(newSpeed);
+	// Calls Motor_decreaseSpeed();
 	
 }
 void ButtonManager_setHandler(uint32_t portAddress, void(*handler)(void)){

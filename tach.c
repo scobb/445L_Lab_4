@@ -7,10 +7,14 @@ void EndCritical(long sr);    // restore I bit to previous value
 void WaitForInterrupt(void);  // low power mode
 #define CYCLES_PER_SECOND 80000000
 #define N 4
+#define TRUE 1
+#define FALSE 0
 
 uint32_t Period;
 uint32_t static first;
+uint64_t rps_thousandths;
 int32_t Done;
+uint8_t readingReady;
 void Tach_Init(){
 	long sr;
   sr = StartCritical();
@@ -18,8 +22,7 @@ void Tach_Init(){
   SYSCTL_RCGCGPIO_R |= 0x02; // activate port B
   while((SYSCTL_PRGPIO_R&0x0002) == 0){};// ready?
 	first = 0;
-	Done = 0;
-		
+	readingReady = FALSE;
 	// configure PB6 for input capture
   GPIO_PORTB_DIR_R &= ~0x40;       // make PB6 in
   GPIO_PORTB_AFSEL_R |= 0x40;      // enable alt funct on PB6
@@ -46,20 +49,30 @@ void Tach_Init(){
 	
 }
 uint32_t Tach_getMeasurement(){
-	while (!Done){
+	// demote to 32 bit when passed back.
+	while (!readingReady){
+		// non busy wait--wake up to check on interrupts
 		WaitForInterrupt();
 	}
-	// calculate using a 64 bit to accomodate 1000 * 80,000,000
-	uint64_t rps_thousandths = ((1000) * CYCLES_PER_SECOND)/(N * Period);
-	Done = 0;
-	
-	// demote to 32 bit when passed back.
-	return rps_thousandths;
+	long sr = StartCritical();
+	uint32_t tmp = rps_thousandths;
+	readingReady = FALSE;
+	EndCritical(sr);
+	return tmp;
 }
 
 void Timer1A_Handler(void){
 	TIMER1_ICR_R = 0x00000004;
 	Period = (first - TIMER1_TAR_R)&0x00FFFFFF;
 	first = TIMER1_TAR_R;
-	Done = 1;
+	
+	// calculate using a 64 bit to accomodate 1000 * 80,000,000
+	rps_thousandths = ((1000) * CYCLES_PER_SECOND)/(N * Period);
+	
+	// calculate error here, update output
+	//Motor_updateOutput(rps_thousandths);
+	
+	// set the flag
+	readingReady = TRUE;
+	
 }

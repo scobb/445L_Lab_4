@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 void Display_drawScreen(uint32_t currentRps, uint32_t desiredRps);
+void Display_updateDesiredSpeed(uint32_t desiredRps);
 
 
 #endif

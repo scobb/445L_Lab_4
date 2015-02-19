@@ -36,18 +36,41 @@
 #include "ST7735.h"
 #include "PLL.h"
 #include "tach.h"
+#include "heartbeat.h"
+#include "Timer0A.h"
+#include "SysTick.h"
 #include "inc/tm4c123gh6pm.h"
+#include "ButtonManager.h"
+#define HALF_A_SECOND 40000000
 
-
+void EnableInterrupts(void);  // Enable interrupts
 
 int main(void){
+	// 80 MHz
   PLL_Init();
+	
+	// Heartbeat timer, PF1
+	Timer0A_Init(HALF_A_SECOND);
+	Heartbeat_Init();
+	
+	// SysTick, used for debounce
+	SysTick_Init();
+	
+	// Buttons activated
+	ButtonManager_Init();
+	
+	// LCD output activated
   Output_Init();
+	
+	// Tachometer sensor activated
 	Tach_Init();
+	
+	// Enable interrupts
+	EnableInterrupts();
   printf("hello world");
   while(1){
-		uint32_t currentRps = Tach_getMeasurement();
-		// uint32_t desiredRps = Motor_getDesired();
+		// uint32_t currentRps = Tach_getMeasurement();
+		// uint32_t desiredRps = Motor_getDesiredRps();
 		// Display_drawScreen(currentRps, desiredRps);
   }
 } 

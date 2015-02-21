@@ -37,7 +37,6 @@
 #include "PLL.h"
 #include "tach.h"
 #include "heartbeat.h"
-#include "Timer0A.h"
 #include "SysTick.h"
 #include "inc/tm4c123gh6pm.h"
 #include "ButtonManager.h"
@@ -58,7 +57,7 @@ int main(void){
 	Heartbeat_Init();
 	
 	// SysTick, used for debounce
-	//SysTick_Init();
+	SysTick_Init();
 	
 	// Buttons activated
 	ButtonManager_Init();
@@ -75,8 +74,10 @@ int main(void){
 	EnableInterrupts();
   // printf("hello world");
   while(1){
-		uint32_t currentRps = Tach_getMeasurement();
-		uint32_t desiredRps = Motor_getDesiredRps();
+		uint32_t currentRps = Tach_getMeasurementThousandths();
+		// calculate error here, update output
+		Motor_updateOutput(currentRps);
+		uint32_t desiredRps = Motor_getDesiredRpsThousandths();
 		Display_drawScreen(currentRps, desiredRps);
   }
 } 

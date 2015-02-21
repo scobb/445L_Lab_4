@@ -1,7 +1,7 @@
 #include "Heartbeat.h"
 #include <stdint.h>
 #include "inc/tm4c123gh6pm.h"
-#include "Timer0A.h"
+#include "Timer1A.h"
 
 #define LED (*((volatile uint32_t *)0x40025008)) //Uses PF1. Looks like mainly for colors (1=red)
 

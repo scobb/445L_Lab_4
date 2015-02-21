@@ -2,6 +2,7 @@
 #include "inc/tm4c123gh6pm.h"
 #include "ST7735.h"
 #include "SysTick.h"
+#include "Motor.h"
 #include <stdint.h>
 
 long StartCritical (void);    // previous I bit, disable interrupts
@@ -38,17 +39,17 @@ void ButtonManager_Init(){
   GPIO_PORTD_IEV_R &= ~0x0C;    //     PD0, 1 falling edge event
   GPIO_PORTD_ICR_R = 0x0C;      // (e) clear flag4
   GPIO_PORTD_IM_R |= 0x0C;      // (f) arm interrupt on PD1-0 *** No IME bit as mentioned in Book ***
-  NVIC_PRI0_R = (NVIC_PRI0_R&0x0FFFFFFF)|0x80000000; // (g) priority 4
+  NVIC_PRI0_R = (NVIC_PRI0_R&0x0FFFFFFF)|0xA0000000; // (g) priority 6
   NVIC_EN0_R |= NVIC_EN0_INT3;      // (h) enable interrupt 19 in NVIC
 	
 	
 }
 void increaseSpeedPressed(){
-	// Calls Motor_increaseSpeed();
+	Motor_increaseSpeed();
 	
 }
 void decreaseSpeedPressed(){
-	// Calls Motor_decreaseSpeed();
+	Motor_decreaseSpeed();
 	
 }
 void ButtonManager_setHandler(uint32_t portAddress, void(*handler)(void)){
@@ -69,8 +70,8 @@ void CheckDebounce(buttonStatus* buttons, uint8_t numPorts){
 
 void GPIOPortD_Handler(void){
 	// handler for port D -- all 5 buttons
-	GPIO_PORTD_ICR_R = 0x0C;      // acknowledge flag 0-1
 	uint8_t i;
+	GPIO_PORTD_ICR_R = 0x0C;      // acknowledge flag 0-1
 	uint8_t needCheck = FALSE;
 	
 	// TODO - store these in a "member" hash table updated by setHandler method

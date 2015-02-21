@@ -1,4 +1,5 @@
 #include "tach.h"
+#include "motor.h"
 #include "inc/tm4c123gh6pm.h"
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
@@ -6,13 +7,13 @@ long StartCritical (void);    // previous I bit, disable interrupts
 void EndCritical(long sr);    // restore I bit to previous value
 void WaitForInterrupt(void);  // low power mode
 #define CYCLES_PER_SECOND 80000000
-#define N 4
+#define BRUSHES_PER_ROTATION 4
 #define TRUE 1
 #define FALSE 0
 
 uint32_t Period;
 uint32_t static first;
-uint64_t rps_thousandths;
+uint32_t rps_thousandths;
 int32_t Done;
 uint8_t readingReady, periodReady;
 void Tach_Init(){
@@ -52,10 +53,11 @@ void Tach_Init(){
   EndCritical(sr);
 	
 }
-uint32_t Tach_getMeasurement(){
+uint32_t Tach_getMeasurementThousandths(){
 	// demote to 32 bit when passed back.
 	while (!readingReady){
 		// non busy wait--wake up to check afater interrupts
+		return 0;
 		WaitForInterrupt();
 	}
 	long sr = StartCritical();
@@ -85,10 +87,7 @@ void Timer0A_Handler(void){
 	periodReady = TRUE;
 	
 	// calculate using a 64 bit to accomodate 1000 * 80,000,000
-	rps_thousandths = ((1000) * CYCLES_PER_SECOND)/(N * Period);
-	
-	// calculate error here, update output
-	//Motor_updateOutput(rps_thousandths);
+	rps_thousandths = ( 1000 * (uint64_t) CYCLES_PER_SECOND)/(BRUSHES_PER_ROTATION * Period);
 	
 	// set the flag
 	readingReady = TRUE;

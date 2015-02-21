@@ -32,19 +32,23 @@ void Tach_Init(){
   GPIO_PORTB_AMSEL_R &= ~0x40;     // disable analog functionality on PB6
 		
 	// configure timer1a
-  TIMER1_CTL_R &= ~TIMER_CTL_TAEN; // disable timer0A during setup
-  TIMER1_CFG_R = TIMER_CFG_16_BIT; // configure for 16-bit timer mode
+  SYSCTL_RCGCTIMER_R |= 0x01;      // 0) activate timer0
+	
+	
+  TIMER0_CTL_R &= ~TIMER_CTL_TAEN; // disable timer0A during setup
+  TIMER0_CFG_R = TIMER_CFG_16_BIT; // configure for 16-bit timer mode
                                    // configure for capture mode, default down-count settings
-  TIMER1_TAMR_R = (TIMER_TAMR_TACMR|TIMER_TAMR_TAMR_CAP);
+  TIMER0_TAMR_R = (TIMER_TAMR_TACMR|TIMER_TAMR_TAMR_CAP);
                                    // configure for rising edge event
-  TIMER1_CTL_R &= ~(TIMER_CTL_TAEVENT_POS|0xC);
-  TIMER1_TAILR_R = TIMER_TAILR_M;  // max start value
-  TIMER1_IMR_R |= TIMER_IMR_CAEIM; // enable capture match interrupt
-  TIMER1_ICR_R = TIMER_ICR_CAECINT;// clear timer0A capture match flag
-  TIMER1_CTL_R |= TIMER_CTL_TAEN;  // enable timer0A 16-b, +edge timing, interrupts
+  TIMER0_CTL_R &= ~(TIMER_CTL_TAEVENT_POS|0xC);
+  TIMER0_TAILR_R = TIMER_TAILR_M;  // max start value
+  TIMER0_IMR_R |= TIMER_IMR_CAEIM; // enable capture match interrupt
+	TIMER0_TAPR_R = 0xFF;
+  TIMER0_ICR_R = TIMER_ICR_CAECINT;// clear timer0A capture match flag
+  TIMER0_CTL_R |= TIMER_CTL_TAEN;  // enable timer0A 16-b, +edge timing, interrupts
                                    // Timer0A=priority 2
-  NVIC_PRI5_R = (NVIC_PRI5_R&0xFFFF00FF)|0x00000400; // top 3 bits
-  NVIC_EN0_R = NVIC_EN0_INT21;     // enable interrupt 21 in NVIC
+  NVIC_PRI4_R = (NVIC_PRI4_R&0x00FFFFFF)|0x400000000; // top 3 bits
+  NVIC_EN0_R = NVIC_EN0_INT19;     // enable interrupt 21 in NVIC
   EndCritical(sr);
 	
 }
@@ -74,10 +78,10 @@ uint32_t Tach_getPeriod(){
 	
 }
 
-void Timer1A_Handler(void){
-	TIMER1_ICR_R = 0x00000004;
-	Period = (first - TIMER1_TAR_R)&0x00FFFFFF;
-	first = TIMER1_TAR_R;
+void Timer0A_Handler(void){
+	TIMER0_ICR_R = 0x00000004;
+	Period = (first - TIMER0_TAR_R)&0x00FFFFFF;
+	first = TIMER0_TAR_R;
 	periodReady = TRUE;
 	
 	// calculate using a 64 bit to accomodate 1000 * 80,000,000

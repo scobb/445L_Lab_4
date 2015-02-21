@@ -25,19 +25,19 @@ void ButtonManager_Init(){
   SYSCTL_RCGCGPIO_R |= 0x00000008;  // 1) activate clock for Port D
   delay = SYSCTL_RCGCGPIO_R;        // allow time for clock to start
   // GPIO_PORTD_LOCK_R = GPIO_LOCK_KEY;   // Not using PD7 so don't need to unlock
-  // GPIO_PORTD_CR_R |= 0x03;           // Don't need to unlock PD7
-  GPIO_PORTD_AFSEL_R &= ~0x03;        // 6) disable alt funct on PD1-0
-  GPIO_PORTD_DIR_R &= ~0x03;          // 5) PD1-0 are in
-  GPIO_PORTD_AMSEL_R &= ~0x03;        // 3) disable analog on PD
-  GPIO_PORTD_PUR_R |= 0x03;          // enable pull-up on PD
-  GPIO_PORTD_DEN_R |= 0x03;          // 7) enable digital I/O on PD
-  GPIO_PORTD_PCTL_R &= ~0x0F00FFFF; // configure PD1-0 as GPIO
+  // GPIO_PORTD_CR_R |= 0x0C;           // Don't need to unlock PD7
+  GPIO_PORTD_AFSEL_R &= ~0x0C;        // 6) disable alt funct on PD1-0
+  GPIO_PORTD_DIR_R &= ~0x0C;          // 5) PD1-0 are in
+  GPIO_PORTD_AMSEL_R &= ~0x0C;        // 3) disable analog on PD
+  GPIO_PORTD_PUR_R |= 0x0C;          // enable pull-up on PD
+  GPIO_PORTD_DEN_R |= 0x0C;          // 7) enable digital I/O on PD
+  GPIO_PORTD_PCTL_R &= ~0x0000FF00; // configure PD1-0 as GPIO
 	
-  GPIO_PORTD_IS_R &= ~0x03;     // (d) PD0, 1 is edge-sensitive
-  GPIO_PORTD_IBE_R &= ~0x03;    //     PD0, 1 is not both edges
-  GPIO_PORTD_IEV_R &= ~0x03;    //     PD0, 1 falling edge event
-  GPIO_PORTD_ICR_R = 0x03;      // (e) clear flag4
-  GPIO_PORTD_IM_R |= 0x03;      // (f) arm interrupt on PD1-0 *** No IME bit as mentioned in Book ***
+  GPIO_PORTD_IS_R &= ~0x0C;     // (d) PD0, 1 is edge-sensitive
+  GPIO_PORTD_IBE_R &= ~0x0C;    //     PD0, 1 is not both edges
+  GPIO_PORTD_IEV_R &= ~0x0C;    //     PD0, 1 falling edge event
+  GPIO_PORTD_ICR_R = 0x0C;      // (e) clear flag4
+  GPIO_PORTD_IM_R |= 0x0C;      // (f) arm interrupt on PD1-0 *** No IME bit as mentioned in Book ***
   NVIC_PRI0_R = (NVIC_PRI0_R&0x0FFFFFFF)|0x80000000; // (g) priority 4
   NVIC_EN0_R |= NVIC_EN0_INT3;      // (h) enable interrupt 19 in NVIC
 	
@@ -69,14 +69,14 @@ void CheckDebounce(buttonStatus* buttons, uint8_t numPorts){
 
 void GPIOPortD_Handler(void){
 	// handler for port D -- all 5 buttons
-	GPIO_PORTD_ICR_R = 0x03;      // acknowledge flag 0-1
+	GPIO_PORTD_ICR_R = 0x0C;      // acknowledge flag 0-1
 	uint8_t i;
 	uint8_t needCheck = FALSE;
 	
 	// TODO - store these in a "member" hash table updated by setHandler method
 	buttonStatus ports[2] = {
-		{PD0, FALSE, &increaseSpeedPressed},
-		{PD1, FALSE ,&decreaseSpeedPressed}
+		{PD2, FALSE, &increaseSpeedPressed},
+		{PD3, FALSE ,&decreaseSpeedPressed}
 	};
 	
 	// check all ports to see if any is low

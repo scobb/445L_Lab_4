@@ -41,6 +41,10 @@
 #include "SysTick.h"
 #include "inc/tm4c123gh6pm.h"
 #include "ButtonManager.h"
+#include "Display.h"
+#include "Motor.h"
+#include "Timer1A.h"
+
 #define HALF_A_SECOND 40000000
 
 void EnableInterrupts(void);  // Enable interrupts
@@ -50,11 +54,11 @@ int main(void){
   PLL_Init();
 	
 	// Heartbeat timer, PF1
-	Timer0A_Init(HALF_A_SECOND);
+	Timer1A_Init(HALF_A_SECOND);
 	Heartbeat_Init();
 	
 	// SysTick, used for debounce
-	SysTick_Init();
+	//SysTick_Init();
 	
 	// Buttons activated
 	ButtonManager_Init();
@@ -65,12 +69,14 @@ int main(void){
 	// Tachometer sensor activated
 	Tach_Init();
 	
+	Motor_Init();
+	
 	// Enable interrupts
 	EnableInterrupts();
-  printf("hello world");
+  // printf("hello world");
   while(1){
-		// uint32_t currentRps = Tach_getMeasurement();
-		// uint32_t desiredRps = Motor_getDesiredRps();
-		// Display_drawScreen(currentRps, desiredRps);
+		uint32_t currentRps = Tach_getMeasurement();
+		uint32_t desiredRps = Motor_getDesiredRps();
+		Display_drawScreen(currentRps, desiredRps);
   }
 } 

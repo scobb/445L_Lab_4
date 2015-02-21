@@ -10,8 +10,8 @@ uint16_t dutyCycle;
 void Motor_Init() {
 	desiredSpeed = 800;//initialize to 20 rps (from ppt: desiredSpeed*0.025=rps
 	speed = 40000;//1000 HZ
-	dutyCycle = 30000;//75% duty
-	PWM0A_Init(speed, dutyCycle);//From sample code
+	dutyCycle = 20000;//75% duty
+	PWM0B_Init(speed, dutyCycle);//From sample code
 }
 
 uint32_t Motor_getDesiredRps() {
@@ -30,7 +30,7 @@ void Motor_increaseSpeed() {
 }
 
 void Motor_off() {
-	PWM0A_Duty(0);
+	PWM0B_Duty(0);
 }
 
 void Motor_updateOutput() {
@@ -40,5 +40,5 @@ void Motor_updateOutput() {
 	int32_t U = U+(3*E)/64;//3 may need to be changed
 	if (U < 40) U = 40;
 	else if (U > 39960) U = 39960;
-	PWM0A_Duty(U);
+	PWM0B_Duty(U);
 }

@@ -14,7 +14,7 @@ uint32_t Period;
 uint32_t static first;
 uint64_t rps_thousandths;
 int32_t Done;
-uint8_t readingReady;
+uint8_t readingReady, periodReady;
 void Tach_Init(){
 	long sr;
   sr = StartCritical();
@@ -51,7 +51,7 @@ void Tach_Init(){
 uint32_t Tach_getMeasurement(){
 	// demote to 32 bit when passed back.
 	while (!readingReady){
-		// non busy wait--wake up to check on interrupts
+		// non busy wait--wake up to check afater interrupts
 		WaitForInterrupt();
 	}
 	long sr = StartCritical();
@@ -61,10 +61,21 @@ uint32_t Tach_getMeasurement(){
 	return tmp;
 }
 
+uint32_t Tach_getPeriod(){
+	while (!periodReady){
+		// non busy wait--wake up to check after interrupts
+		WaitForInterrupt();
+	}
+	periodReady = FALSE;
+	return Period;
+	
+}
+
 void Timer1A_Handler(void){
 	TIMER1_ICR_R = 0x00000004;
 	Period = (first - TIMER1_TAR_R)&0x00FFFFFF;
 	first = TIMER1_TAR_R;
+	periodReady = TRUE;
 	
 	// calculate using a 64 bit to accomodate 1000 * 80,000,000
 	rps_thousandths = ((1000) * CYCLES_PER_SECOND)/(N * Period);

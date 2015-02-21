@@ -35,7 +35,7 @@ void Motor_off() {
 
 void Motor_updateOutput() {
 	//code from the book. Is this what we want here?
-	uint32_t motorSpeed = 80000000/Period;
+	uint32_t motorSpeed = 80000000/Tach_getPeriod();
 	int32_t E = desiredSpeed-motorSpeed;
 	int32_t U = U+(3*E)/64;//3 may need to be changed
 	if (U < 40) U = 40;

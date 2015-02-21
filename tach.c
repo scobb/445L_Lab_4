@@ -67,7 +67,10 @@ uint32_t Tach_getPeriod(){
 		WaitForInterrupt();
 	}
 	periodReady = FALSE;
-	return Period;
+	long sr = StartCritical();
+	uint32_t tmp = Period;
+	EndCritical(sr);
+	return tmp;
 	
 }
 

@@ -10,7 +10,7 @@ uint32_t desiredSpeed;
 uint16_t speed;
 uint16_t dutyCycle;
 void Motor_Init() {
-	desiredSpeed = 0;//initialize to 0 rps
+	desiredSpeed = 800;//initialize to 20 rps (from ppt: desiredSpeed*0.025=rps
 	speed = 40000;//1000 HZ
 	dutyCycle = 30000;//75% duty
 	PWM0A_Init(speed, dutyCycle);//From sample code
@@ -23,12 +23,12 @@ uint32_t Motor_getDesiredRps() {
 
 void Motor_decreaseSpeed(){
 	//This either means decrease speed/dutyCycle or just dutyCycle. I will start with just dutyCycle
-	desiredSpeed = desiredSpeed - 5;
+	if (desiredSpeed >= 5) { desiredSpeed = desiredSpeed - 200; }
 }
 
 void Motor_increaseSpeed() {
-	//We will only change speed when necessary
-	desiredSpeed = desiredSpeed + 5;
+	//We will only change speed when necessary (doing 200 using formula for desiredSpeed in ppt)
+	if (desiredSpeed <= 35) { desiredSpeed = desiredSpeed + 200; }
 }
 
 void Motor_off() {

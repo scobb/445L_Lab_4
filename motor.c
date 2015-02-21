@@ -4,8 +4,6 @@
 #include "Display.h"
 #include "motor.h"
 
-#define STEP 5000
-uint32_t Period;
 uint32_t desiredSpeed;
 uint16_t speed;
 uint16_t dutyCycle;
@@ -18,7 +16,7 @@ void Motor_Init() {
 
 uint32_t Motor_getDesiredRps() {
 	//This might just be returning a variable that has the current speed
-	return Tach_getMeasurement();
+	return (desiredSpeed/40);
 }
 
 void Motor_decreaseSpeed(){
@@ -35,9 +33,9 @@ void Motor_off() {
 	PWM0A_Duty(0);
 }
 
-void Motor_updateOutput(uint32_t measuredRpsThousands) {
+void Motor_updateOutput() {
 	//code from the book. Is this what we want here?
-	uint32_t motorSpeed = 800000000/Period;
+	uint32_t motorSpeed = 80000000/Period;
 	int32_t E = desiredSpeed-motorSpeed;
 	int32_t U = U+(3*E)/64;//3 may need to be changed
 	if (U < 40) U = 40;

@@ -13,4 +13,4 @@ void Motor_increaseSpeed();
 
 void Motor_off();
 
-void Motor_updateOutput(uint32_t measuredRpsThousands);
+void Motor_updateOutput();

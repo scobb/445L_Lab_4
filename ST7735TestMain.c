@@ -72,6 +72,7 @@ int main(void){
 	
 	// Enable interrupts
 	EnableInterrupts();
+	
   // printf("hello world");
   while(1){
 		uint32_t currentRps = Tach_getMeasurementThousandths();

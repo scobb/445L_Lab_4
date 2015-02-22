@@ -29,12 +29,17 @@ uint32_t Motor_getDesiredRpsThousandths() {
 
 void Motor_decreaseSpeed(){
 	//This either means decrease speed/dutyCycle or just dutyCycle. I will start with just dutyCycle
-	if (desiredRpsThousandths >= 5000) { desiredRpsThousandths-= 5000; }
+	if (desiredRpsThousandths > 10000) { desiredRpsThousandths-= 5000; }
+	else if (desiredRpsThousandths == 10000)
+		// can't sustain 5 rps. Don't get enough current to the motor
+		desiredRpsThousandths = 0;
 }
 
 void Motor_increaseSpeed() {
 	//We will only change speed when necessary (doing 200 using formula for desiredSpeed in ppt)
-	if (desiredRpsThousandths <= 35000) { desiredRpsThousandths+= 5000; }
+	if (desiredRpsThousandths == 0)
+		desiredRpsThousandths = 10000; 
+	else if (desiredRpsThousandths <= 55000) { desiredRpsThousandths+= 5000; }
 }
 
 void Motor_off() {
@@ -42,15 +47,20 @@ void Motor_off() {
 }
 
 void Motor_updateOutput(int32_t measuredRpsThousandths) {
-	//code from the book. Is this what we want here?
-	static int32_t U = 0;
+	// Integral control
+	static int32_t newOutput = 0;
 	int32_t E = desiredRpsThousandths - measuredRpsThousandths;
-	//printf("des: %u\n", desiredRpsThousandths);
-	//printf("meas: %u\n", measuredRpsThousandths);
 	
+	// Control equation for new output
+	newOutput += (3*E)/64;
 	
-	U += (3*E)/64;//3 may need to be changed
-	if (U < 40) U = 40;
-	else if (U > 39960) U = 39960;
-	PWM0B_Duty(U);
+	// bound our output
+	if (newOutput < 40) newOutput = 40;
+	else if (newOutput > 39960) newOutput = 39960;
+	if (desiredRpsThousandths == 0){
+		newOutput = 0;
+	}
+	
+	// output new duty cycle
+	PWM0B_Duty(newOutput);
 }

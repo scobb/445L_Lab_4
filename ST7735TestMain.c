@@ -63,7 +63,7 @@ int main(void){
 	ButtonManager_Init();
 	
 	// LCD output activated
-  Output_Init();
+  Display_Init();
 	
 	// Tachometer sensor activated
 	Tach_Init();

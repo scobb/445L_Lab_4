@@ -9,12 +9,19 @@
 #define BOTTOM_ROW 15
 #define LABEL_SCALAR 5
 uint32_t myDesiredRps = 0;
+void Display_Init(){
+	Output_Init();
+	// set up static labels
+	printf("Desired: \n");
+	printf("Current: \n");
+}
 void Display_drawScreen(uint32_t currentRpsThousandths, uint32_t desiredRpsThousandths){
 	static uint16_t desiredY[RIGHT_X + 1];
 	static uint16_t currentY[RIGHT_X + 1];
 	int i;
-	ST7735_SetCursor(0, 0);
+	ST7735_SetCursor(10, 0);
 	Fixed_uDecOut3(desiredRpsThousandths);
+	ST7735_SetCursor(10, 1);
 	Fixed_uDecOut3(currentRpsThousandths);
 	for (i = LABEL_SPACE; i < RIGHT_X; ++i) {
 		// lazy way to initialize the array. Yep. I'm lazy.

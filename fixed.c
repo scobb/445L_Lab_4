@@ -43,7 +43,7 @@ void blank_str(char* string) {
 void output(char* string) {
 	// outputs a string followed by a newline
 	printf(string);
-	printf("\n");
+	// printf("\n");
 }
 
 void stars(char* string, uint32_t fractional_digits, uint8_t is_signed) {
